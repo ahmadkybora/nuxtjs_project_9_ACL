@@ -277,7 +277,7 @@ const actions = {
                                 context.commit('myUser',myUser);
                             });
                         break;
-                    case 403:
+                    case 201:
                         Swal.fire('Warning!', res.data.message, 'warning')
                             .then(() => {
 
@@ -299,10 +299,32 @@ const actions = {
             }).catch(err => {
             switch (err.response.status) {
                 case 422:
-                    for (let i = 0; i < err.response.data.errors.length; i++) {
+                    if (err.response.data.errors.length !== null) {
+                        for (let i = 0; i < err.response.data.errors.length; i++) {
+                            Swal.fire('Warning!', err.response.data.errors[i].message, 'warning')
+                                .then(() => {
+
+                                });
+                        }
+                    } else {
                         Swal.fire('Warning!', err.response.data.errors[i].message, 'warning')
                             .then(() => {
 
+                            });
+                    }
+                    break;
+                case 403:
+                    if (err.response.data.errors !== null) {
+                        for (let i = 0; i < err.response.data.errors.length; i++) {
+                            Swal.fire('Warning!', err.response.data.errors[i].message, 'warning')
+                                .then(() => {
+                                    return this.$router.push('/');
+                                });
+                        }
+                    } else {
+                        Swal.fire('Warning!', err.response.data.message, 'warning')
+                            .then(() => {
+                                return this.$router.push('/');
                             });
                     }
                     break;
