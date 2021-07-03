@@ -730,7 +730,40 @@
                                 </div>
 
                             </div>
-
+                            <!--//-->
+                            <div class="col-md-6">
+                                <div class="form-group" v-if="editMode">
+                                    <select :class="{ 'form-group--error': $v.user.permission.$error }"
+                                            v-model.trim="$v.user.permission.$model"
+                                            name="permission"
+                                            id="permission"
+                                            class="form-control"
+                                            multiple="multiple">
+                                        <option multiple="multiple" value="" selected disabled hidden>Please Select
+                                            Permissions
+                                        </option>
+                                        <option v-for="permission in permissions.data"
+                                                :value="permission.id"
+                                                v-text="permission.name">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="form-group" v-else>
+                                    <h4>Please Select Permissions</h4>
+                                    <select v-model="permission"
+                                            name="permission"
+                                            id="permission"
+                                            class="form-control"
+                                            multiple="multiple">
+                                        <option value="" selected disabled hidden>Please Select Permissions</option>
+                                        <option v-for="permission in permissions.data"
+                                                :value="permission.id"
+                                                v-text="permission.name">
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!--//-->
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
@@ -784,6 +817,7 @@
                 isSelected: false,
                 showImage: '',
                 submitStatus: '',
+                permission: [],
             }
         },
         validations: {
@@ -909,10 +943,17 @@
             image: {
                 required,
             },
+            /*permission: {
+                required
+            }*/
         },
         props: ['user', 'editMode'],
+        mounted() {
+            return this.$store.dispatch('Roles/allPermissions')
+        },
         computed: {
             ...mapState({
+                permissions: state => state.Roles.allPermissions,
                 users: state => state.Users.getUsers,
                 showUser: state => state.Users.isUser,
                 //editUser: state => state.Users.isUser,
@@ -952,6 +993,7 @@
                     work_address: this.work_address,
                     state: this.state,
                     image: this.image,
+                    permission: this.permission,
                 };
                 return this.$store.dispatch('Users/isUserRegister', isRegister)
                     .then(() => {
@@ -968,6 +1010,7 @@
                         this.work_address = '';
                         this.state = '';
                         this.image = '';
+                        this.permission = '';
                     })
                 //}
             },

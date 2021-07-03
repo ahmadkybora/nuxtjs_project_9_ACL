@@ -17,6 +17,7 @@ import Brands from './modules/brands';
 import Carts from './modules/carts';
 import Transactions from './modules/transactions';
 import Banks from './modules/banks';
+import Roles from './modules/roles';
 
 const employeeToken = window.localStorage.getItem('token-employee');
 const userToken = window.localStorage.getItem('token-user');
@@ -72,7 +73,8 @@ const createStore = () => {
             Brands,
             Carts,
             Transactions,
-            Banks
+            Banks,
+            Roles
         }
     })
 };

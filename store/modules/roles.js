@@ -2,16 +2,18 @@ import Axios from 'axios'
 import Swal from "sweetalert2";
 
 const state = () => ({
-    getUsers: {},
-    isUser: {},
-    myUser: {},
+    getRoles: {},
+    allRoles: {},
+    allPermissions: {},
+    isRole: {},
+    myRoles: {},
 });
 
 const getters = {
-    getUsers(state) {
+    getRoles(state) {
         return state.getUsers
     },
-    isUser(state) {
+    isRole(state) {
         return state.isUser
     },
 };
@@ -19,19 +21,39 @@ const getters = {
 const actions = {
 
     // panel
-    async getUsers(context, page = 1) {
-        await Axios.get(Axios.defaults.baseURL + `panel/users?page=${page}`)
+    async allPermissions(context) {
+        await this.$axios.get(`panel/roles/permissions`)
             .then(res => {
-                const getUsers = res.data.data;
-                context.commit('getUsers', getUsers);
+                const allPermissions = res.data.data;
+                context.commit('allPermissions', allPermissions);
             }).catch(err => {
                 console.log(err)
             })
     },
 
-    showUser(context, payload) {
+    async getRoles(context, page = 1) {
+        await this.$axios.get(`panel/roles?page=${page}`)
+            .then(res => {
+                const getRoles = res.data.data;
+                context.commit('getRoles', getRoles);
+            }).catch(err => {
+                console.log(err)
+            })
+    },
+
+    async allRoles(context, all = 'all') {
+        await this.$axios.get(`panel/users?all=${all}`)
+            .then(res => {
+                const allRoles = res.data.data;
+                context.commit('allRoles', allRoles);
+            }).catch(err => {
+                console.log(err)
+            })
+    },
+
+    showRole(context, payload) {
         const userId = payload.id;
-        const users = context.state.getUsers;
+        const users = context.state.Roles;
         console.log(users[3].id);
         for (let i = 0; i < users.length; i++) {
             if (users[i].id === userId) {
@@ -41,7 +63,7 @@ const actions = {
         }
     },
 
-    editUser(context, payload) {
+    editTransaction(context, payload) {
         const userId = payload.id;
         const users = context.state.getUsers;
         for (let i = 0; i < users.length; i++) {
@@ -52,37 +74,23 @@ const actions = {
         }
     },
 
-    async isUserRegister(context, payload) {
-        let formData = new FormData();
+    async isRoleRegister(context, payload) {
+        /*let formData = new FormData();
 
-        formData.append('first_name', payload.first_name);
-        formData.append('last_name', payload.last_name);
-        formData.append('username', payload.username);
-        formData.append('email', payload.email);
-        formData.append('mobile', payload.mobile);
-        formData.append('home_phone', payload.home_phone);
-        formData.append('zip_code', payload.zip_code);
-        formData.append('password', payload.password);
-        formData.append('confirmation_password', payload.confirmation_password);
-        formData.append('home_address', payload.home_address);
-        formData.append('work_address', payload.work_address);
-        formData.append('state', payload.state);
-        formData.append('image', payload.image);
-        formData.append('permission', payload.permission);
-
-        await this.$axios.post('panel/users/store', formData,
-            {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                },
-            })
+        formData.append('role', payload.role);
+        formData.append('permission', payload.permission);*/
+        const role = {
+            role: payload.role,
+            permission: payload.permission,
+        };
+        await this.$axios.post('panel/roles/store', role)
             .then(res => {
                 switch (res.status) {
                     case 201:
                         Swal.fire('Success!', res.data.message, 'success')
                             .then(() => {
-                                const getUsers = res.data.data;
-                                context.commit('getUsers', getUsers);
+                                const getRoles = res.data.data;
+                                context.commit('getRoles', getRoles);
                                 //this.$router.push('/panel/users');
                             });
                         break;
@@ -146,7 +154,7 @@ const actions = {
             })
     },
 
-    async isUserUpdate(context, payload) {
+    async isRoleUpdate(context, payload) {
         const isUpdate = {
             id: payload.id,
             first_name: payload.first_name,
@@ -175,7 +183,7 @@ const actions = {
      * @param context
      * @param payload
      */
-    deleteUser(context, payload) {
+    deleteTransaction(context, payload) {
         state.isUser = payload.id;
         const id = payload.id;
         Axios.delete(Axios.defaults.baseURL + 'panel/users/' + id)
@@ -194,7 +202,7 @@ const actions = {
      * @param payload
      * @returns {Promise<void>}
      */
-    async searchUser(context, payload) {
+    async searchTransaction(context, payload) {
         const full_text_search = {
             full_text_search: payload.full_text_search
         };
@@ -264,12 +272,11 @@ const actions = {
     },
 
     // profile
-
-    async myUser(context) {
-        this.$axios.get('profile/my-profile')
+    async myTransactions(context, page = 1) {
+        this.$axios.get(`profile/my-transactions?page=${page}`)
             .then(res => {
-                const myUser = res.data.data;
-                context.commit('myUser', myUser);
+                const myTransactions = res.data.data;
+                context.commit('myTransactions', myTransactions);
 
                 /*switch (res.status) {
                     case 200:
@@ -279,7 +286,7 @@ const actions = {
                                 context.commit('myUser',myUser);
                             });
                         break;
-                    case 201:
+                    case 403:
                         Swal.fire('Warning!', res.data.message, 'warning')
                             .then(() => {
 
@@ -301,32 +308,10 @@ const actions = {
             }).catch(err => {
             switch (err.response.status) {
                 case 422:
-                    if (err.response.data.errors.length !== null) {
-                        for (let i = 0; i < err.response.data.errors.length; i++) {
-                            Swal.fire('Warning!', err.response.data.errors[i].message, 'warning')
-                                .then(() => {
-
-                                });
-                        }
-                    } else {
+                    for (let i = 0; i < err.response.data.errors.length; i++) {
                         Swal.fire('Warning!', err.response.data.errors[i].message, 'warning')
                             .then(() => {
 
-                            });
-                    }
-                    break;
-                case 403:
-                    if (err.response.data.errors !== null) {
-                        for (let i = 0; i < err.response.data.errors.length; i++) {
-                            Swal.fire('Warning!', err.response.data.errors[i].message, 'warning')
-                                .then(() => {
-                                    return this.$router.push('/');
-                                });
-                        }
-                    } else {
-                        Swal.fire('Warning!', err.response.data.message, 'warning')
-                            .then(() => {
-                                return this.$router.push('/');
                             });
                     }
                     break;
@@ -354,8 +339,82 @@ const actions = {
             }
         })
     },
+    async myTransactionRegister(context, payload) {
+        let formData = new FormData();
 
-    async myUserUpdate(context, payload) {
+        formData.append("transaction_code", payload.transaction_code);
+        formData.append("bankId", payload.bankId);
+        formData.append("amount", payload.amount);
+        formData.append("image", payload.image);
+
+        this.$axios.post('profile/my-transactions/store', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+            .then(res => {
+                switch (res.status) {
+                    case 201:
+                        Swal.fire('Success!', res.data.message, 'success')
+                            .then(() => {
+                                const myTransaction = res.data.data;
+                                context.commit('myTransaction', myTransaction);
+                            });
+                        break;
+                    case 403:
+                        Swal.fire('Warning!', res.data.message, 'warning')
+                            .then(() => {
+
+                            });
+                        break;
+                    case 422:
+                        Swal.fire('Error!', 'whooops', 'error')
+                            .then(() => {
+
+                            });
+                        break;
+                    case 503:
+                        Swal.fire('Danger!', 'Service is Unavailable', 'error');
+                        break;
+                    default:
+                        Swal.fire('Warning!', 'Your Basic Information', 'warning');
+                        break;
+                }
+            }).catch(err => {
+            switch (err.response.status) {
+                case 422:
+                    for (let i = 0; i < err.response.data.errors.length; i++) {
+                        Swal.fire('Warning!', err.response.data.errors[i].message, 'warning')
+                            .then(() => {
+
+                            });
+                    }
+                    break;
+                case 404:
+                    Swal.fire('Warning!', '404 Not Found!', 'warning')
+                        .then(() => {
+
+                        });
+                    break;
+                case 500:
+                    Swal.fire('Warning!', 'Service is unavailable', 'warning')
+                        .then(() => {
+
+                        });
+                    break;
+                case 503:
+                    Swal.fire('Warning!', 'Service is unavailable', 'warning')
+                        .then(() => {
+
+                        });
+                    break;
+                default:
+                    Swal.fire('Warning!', 'Your Basic Information', 'warning');
+                    break;
+            }
+        })
+    },
+    async myTransactionUpdate(context, payload) {
         let formData = new FormData();
 
         formData.append("first_name", payload.first_name);
@@ -437,26 +496,32 @@ const actions = {
                     break;
             }
         })
-    }
+    },
 };
 
 const mutations = {
-    myUser(state, payload) {
-        state.myUser = payload
+    myTransactions(state, payload) {
+        state.myTransactions = payload
     },
-    isUser(state, payload) {
+    isRole(state, payload) {
         state.isUser = payload
     },
-    getUsers(state, payload) {
-        state.getUsers = payload
+    getRoles(state, payload) {
+        state.getRoles = payload
     },
-    showUser(state, payload) {
+    allRoles(state, payload) {
+        state.allRoles = payload
+    },
+    allPermissions(state, payload) {
+        state.allPermissions = payload
+    },
+    showTransaction(state, payload) {
         state.isUser = payload
     },
-    editUser(state, payload) {
+    editTransaction(state, payload) {
         state.isUser = payload
     },
-    deleteUser(state, payload) {
+    deleteTransaction(state, payload) {
         state.getUsers = payload
     }
 };
