@@ -69,6 +69,7 @@ const actions = {
         formData.append('state', payload.state);
         formData.append('image', payload.image);
         formData.append('permission', payload.permission);
+        formData.append('role', payload.role);
 
         await this.$axios.post('panel/users/store', formData,
             {

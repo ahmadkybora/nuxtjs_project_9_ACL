@@ -31,6 +31,16 @@ const actions = {
             })
     },
 
+    async allRoles(context, all = 'all') {
+        await this.$axios.get(`panel/roles?all=${all}`)
+            .then(res => {
+                const allRoles = res.data.data;
+                context.commit('allRoles', allRoles);
+            }).catch(err => {
+                console.log(err)
+            })
+    },
+
     async getRoles(context, page = 1) {
         await this.$axios.get(`panel/roles?page=${page}`)
             .then(res => {
@@ -41,15 +51,7 @@ const actions = {
             })
     },
 
-    async allRoles(context, all = 'all') {
-        await this.$axios.get(`panel/users?all=${all}`)
-            .then(res => {
-                const allRoles = res.data.data;
-                context.commit('allRoles', allRoles);
-            }).catch(err => {
-                console.log(err)
-            })
-    },
+
 
     showRole(context, payload) {
         const userId = payload.id;

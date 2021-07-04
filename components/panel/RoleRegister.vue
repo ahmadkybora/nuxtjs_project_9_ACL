@@ -208,19 +208,6 @@
                                         <!---------------------//--------------------->
                                     </div>
                                     <!--//-->
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <input type="file"
-                                                   @change="onFileSelected"
-                                                   name="image"
-                                                   id="image"
-                                                   class="form-control">
-                                        </div>
-                                        <div v-if="isSelected !== false">
-                                            <img class="rounded-circle" :src="showImage"
-                                                 style="width: 100px; height: 100px">
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                             <!--//-->

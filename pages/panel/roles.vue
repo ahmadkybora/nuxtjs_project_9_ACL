@@ -52,9 +52,7 @@
                     <td>{{ index }}</td>
                     <td v-text="role.name"></td>
                     <span v-for="p in role.PermissionRoles">
-                        <td>
-                            {{ p.Permission.name }}
-                        </td>
+                        <td style="font-size: small" v-text="p.Permission.name"></td>
                     </span>
                     <td>
                         <button v-if="role.state === 'ACTIVE'" class="btn btn-success btn-sm disabled"

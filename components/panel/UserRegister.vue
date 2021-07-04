@@ -731,36 +731,71 @@
 
                             </div>
                             <!--//-->
-                            <div class="col-md-6">
-                                <div class="form-group" v-if="editMode">
-                                    <select :class="{ 'form-group--error': $v.user.permission.$error }"
-                                            v-model.trim="$v.user.permission.$model"
-                                            name="permission"
-                                            id="permission"
-                                            class="form-control"
-                                            multiple="multiple">
-                                        <option multiple="multiple" value="" selected disabled hidden>Please Select
-                                            Permissions
-                                        </option>
-                                        <option v-for="permission in permissions.data"
-                                                :value="permission.id"
-                                                v-text="permission.name">
-                                        </option>
-                                    </select>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group" v-if="editMode">
+                                        <select :class="{ 'form-group--error': $v.user.permission.$error }"
+                                                v-model.trim="$v.user.permission.$model"
+                                                name="permission"
+                                                id="permission"
+                                                class="form-control"
+                                                multiple="multiple">
+                                            <option multiple="multiple" value="" selected disabled hidden>Please Select
+                                                Permissions
+                                            </option>
+                                            <option v-for="permission in permissions"
+                                                    :value="permission.id"
+                                                    v-text="permission.name">
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group" v-else>
+                                        <h4>Please Select Permissions</h4>
+                                        <select v-model="permission"
+                                                name="permission"
+                                                id="permission"
+                                                class="form-control"
+                                                multiple="multiple">
+                                            <option value="" selected disabled hidden>Please Select Permissions</option>
+                                            <option v-for="permission in permissions"
+                                                    :value="permission.id"
+                                                    v-text="permission.name">
+                                            </option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="form-group" v-else>
-                                    <h4>Please Select Permissions</h4>
-                                    <select v-model="permission"
-                                            name="permission"
-                                            id="permission"
-                                            class="form-control"
-                                            multiple="multiple">
-                                        <option value="" selected disabled hidden>Please Select Permissions</option>
-                                        <option v-for="permission in permissions.data"
-                                                :value="permission.id"
-                                                v-text="permission.name">
-                                        </option>
-                                    </select>
+                                <!--//-->
+                                <div class="col-md-6">
+                                    <div class="form-group" v-if="editMode">
+                                        <select :class="{ 'form-group--error': $v.user.role.$error }"
+                                                v-model.trim="$v.user.role.$model"
+                                                name="role"
+                                                id="role"
+                                                class="form-control"
+                                                multiple="multiple">
+                                            <option multiple="multiple" value="" selected disabled hidden>Please Select
+                                                Role
+                                            </option>
+                                            <option v-for="role in roles"
+                                                    :value="role.id"
+                                                    v-text="role.name">
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group" v-else>
+                                        <h4>Please Select Role</h4>
+                                        <select v-model="role"
+                                                name="role"
+                                                id="role"
+                                                class="form-control"
+                                                multiple="multiple">
+                                            <option value="" selected disabled hidden>Please Select Role</option>
+                                            <option v-for="role in roles"
+                                                    :value="role.id"
+                                                    v-text="role.name">
+                                            </option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                             <!--//-->
@@ -818,6 +853,7 @@
                 showImage: '',
                 submitStatus: '',
                 permission: [],
+                role: [],
             }
         },
         validations: {
@@ -945,15 +981,22 @@
             },
             /*permission: {
                 required
+            }
+            role: {
+                required
             }*/
         },
         props: ['user', 'editMode'],
         mounted() {
             return this.$store.dispatch('Roles/allPermissions')
+                .then(() => {
+                    this.$store.dispatch('Roles/allRoles');
+                });
         },
         computed: {
             ...mapState({
-                permissions: state => state.Roles.allPermissions,
+                permissions: state => state.Roles.allPermissions.data,
+                roles: state => state.Roles.allRoles.data,
                 users: state => state.Users.getUsers,
                 showUser: state => state.Users.isUser,
                 //editUser: state => state.Users.isUser,
@@ -994,6 +1037,7 @@
                     state: this.state,
                     image: this.image,
                     permission: this.permission,
+                    role: this.role,
                 };
                 return this.$store.dispatch('Users/isUserRegister', isRegister)
                     .then(() => {
@@ -1011,6 +1055,7 @@
                         this.state = '';
                         this.image = '';
                         this.permission = '';
+                        this.role = '';
                     })
                 //}
             },
