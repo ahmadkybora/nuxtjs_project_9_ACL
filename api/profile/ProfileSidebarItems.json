@@ -28,5 +28,11 @@
     "title": "My Favorites",
     "icon": "fa fa-envelope",
     "route": "/profile/my-favorites"
+  },
+  {
+    "id": 6,
+    "title": "My Carts",
+    "icon": "fa fa-envelope",
+    "route": "/profile/my-cart"
   }
 ]

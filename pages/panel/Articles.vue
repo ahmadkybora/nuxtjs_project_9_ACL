@@ -143,7 +143,7 @@
 
     window.$ = $;
     export default {
-        middleware: 'checkAuthEmployee',
+        //middleware: 'auth',
         layout: 'panel',
         name: "Users",
         components: {ArticleRegister, ArticleShow},

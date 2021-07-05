@@ -102,15 +102,20 @@ const actions = {
         await this.$axios.post('login', login);
         const auth = await this.$auth.loginWith('local', {data: login});
         if (auth) {
-
             const username = auth.data.data.username;
             const full_name = auth.data.data.first_name + ' ' + auth.data.data.last_name;
             const token = auth.data.data.accessToken;
-            const is_admin = true;
+            const is_admin = auth.data.data.isAdmin;
+            const roles = auth.data.data.roles;
+            const permissions = auth.data.data.permissions;
 
             window.localStorage.setItem('username', username);
             window.localStorage.setItem('full_name', full_name);
             window.localStorage.setItem('is-admin', is_admin);
+            window.localStorage.setItem('roles', roles);
+            for (let i = 0; i < permissions.length; i++) {
+                window.localStorage.setItem(`permissions[${i}]`, permissions[i].permissionId);
+            }
 
             await this.$auth.setUser(username);
             await this.$auth.setUserToken(token);
@@ -159,9 +164,11 @@ const actions = {
 
         await this.$axios.get('logout');
 
+        window.localStorage.removeItem('full_name');
         window.localStorage.removeItem('username');
         window.localStorage.removeItem('is-admin');
 
+        delete window.localStorage.getItem('full_name');
         delete window.localStorage.getItem('username');
         delete window.localStorage.getItem('is-admin');
 

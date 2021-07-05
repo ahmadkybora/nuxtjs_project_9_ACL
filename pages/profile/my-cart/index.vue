@@ -90,7 +90,7 @@
 
     export default {
         //middleware: 'checkAuthEmployee',
-        layout: 'cart',
+        layout: 'profile',
         name: "index",
         data() {
             return {
@@ -103,11 +103,11 @@
         },
         mounted() {
             this.loading = false;
-            return this.$store.dispatch('Carts/getCart');
+            return this.$store.dispatch('Carts/myCart');
         },
         computed: {
             ...mapState({
-                carts: state => state.Carts.getCart
+                carts: state => state.Carts.myCart.data
             })
         },
         methods: {

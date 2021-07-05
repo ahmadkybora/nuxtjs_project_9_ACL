@@ -11,6 +11,7 @@ import '@/node_modules/sweetalert2/dist/sweetalert2.min.js';
 import '@/node_modules/sweetalert2/dist/sweetalert2.min.css';
 import '@/node_modules/vue2-dropzone/dist/vue2Dropzone.js';
 import '@/node_modules/vue2-dropzone/dist/vue2Dropzone.min.css';
+import '../helpers/ErrorHandler.js';
 import Vue from 'vue';
 import {
     HasError,

@@ -3,13 +3,13 @@ import Swal from "sweetalert2";
 import HelperFunctions from "../../helpers/HelperFunctions";
 
 const state = () => ({
-    getCart: {},
+    myCart: {},
     isCart: {},
 });
 
 const getters = {
     getCart(state) {
-        return state.getCart
+        return state.myCart
     },
     isCart(state) {
         return state.isUser
@@ -18,13 +18,13 @@ const getters = {
 
 const actions = {
 
-    async getCart(context) {
-        await Axios.get(Axios.defaults.baseURL + 'profile/cart')
+    async myCart(context) {
+        await this.$axios.get('profile/my-cart')
             .then(res => {
-                const getCart = res.data.data;
-                if(getCart.length === 0)
+                const myCart = res.data.data;
+                if (myCart.length === 0)
                     this.$router.push('/');
-                context.commit('getCart', getCart);
+                context.commit('myCart', myCart);
             }).catch(err => {
                 console.log(err)
             })
@@ -39,7 +39,7 @@ const actions = {
                     case 200:
                         Swal.fire('Success!', res.data.message, 'success')
                             .then(() => {
-                                if(getCart.length === 0)
+                                if (getCart.length === 0)
                                     this.$router.push('/');
                                 let idx = context.state.getCart.indexOf(payload);
                                 context.state.getCart.splice(idx, 1);
@@ -92,7 +92,10 @@ const actions = {
     },
 
     async addToCart(context, payload) {
-        await Axios.post(Axios.defaults.baseURL + 'profile/cart/add', {product_id: payload.productId, quantity: payload.totalQty})
+        await Axios.post(Axios.defaults.baseURL + 'profile/cart/add', {
+            product_id: payload.productId,
+            quantity: payload.totalQty
+        })
             .then(res => {
                 const getCart = res.data.data.data;
                 context.commit('getCart', getCart);
@@ -151,8 +154,8 @@ const actions = {
 };
 
 const mutations = {
-    getCart(state, payload) {
-        state.getCart = payload
+    myCart(state, payload) {
+        state.myCart = payload
     },
     isCart(state, payload) {
         state.isCart = payload

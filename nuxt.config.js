@@ -262,10 +262,10 @@ export default {
     /*
     router middleware log
      */
-    /*router: {
+    router: {
         //extendRoutes(routes, resolve) {},
         //middleware: ['auth']
-    },*/
+    },
 
     serverMiddleware: [
         /*bodyParser.json(),

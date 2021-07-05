@@ -18,6 +18,7 @@ import Carts from './modules/carts';
 import Transactions from './modules/transactions';
 import Banks from './modules/banks';
 import Roles from './modules/roles';
+//import Dashboard from './modules/Dashboard';
 
 const employeeToken = window.localStorage.getItem('token-employee');
 const userToken = window.localStorage.getItem('token-user');
@@ -74,7 +75,8 @@ const createStore = () => {
             Carts,
             Transactions,
             Banks,
-            Roles
+            Roles,
+            //Dashboard
         }
     })
 };
