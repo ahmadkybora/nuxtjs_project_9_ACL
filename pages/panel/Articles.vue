@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <!--UserRegister-->
-        <ArticleRegister :article="article" :editMode="editMode"></ArticleRegister>
+        <ArticleRegister v-if="hasPermissionCreateََArticle === createArticle" :article="article" :editMode="editMode"></ArticleRegister>
         <!--//-->
         <div class="row">
             <div class="col-md-12 text-center">
@@ -9,7 +9,7 @@
                     <div class="col-md-4">
                         <h3>Product Register</h3>
                     </div>
-                    <div class="col-md-3 offset-5">
+                    <div v-if="hasPermissionCreateََArticle === createArticle" class="col-md-3 offset-5">
                         <button @click="registerUser()" class="btn btn-success">
                             <span><i class="fa fa-user-plus"></i>Register</span>
                         </button>
@@ -149,6 +149,8 @@
         components: {ArticleRegister, ArticleShow},
         data() {
             return {
+                createArticle: 'create-article',
+                permissions: '',
                 full_text_search: '',
                 page: 1,
                 employee: {},
@@ -197,6 +199,10 @@
                 }
                 return pagesArray;
             },
+            hasPermissionCreateََArticle() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.createArticle).toString();
+            }
         },
         methods: {
             changePage(page) {

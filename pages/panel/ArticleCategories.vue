@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <!--UserRegister-->
-        <ArticleCategoryRegister/>
+        <ArticleCategoryRegister v-if="hasPermissions"></ArticleCategoryRegister>
         <!--//-->
         <div class="row">
             <div class="col-md-12 text-center">
@@ -148,6 +148,7 @@
         components: {ArticleCategoryRegister, ArticleCategoryShow},
         data() {
             return {
+                permissions: '',
                 full_text_search: '',
                 page: 1,
                 employee: {},
@@ -177,7 +178,31 @@
                 //showCategory: state => state.ArticleCategories.isUser,
                 //editUser: state => state.ArticleCategories.isUser,
                 //deleteUser: state => state.Users.isUser,
-            })
+            }),
+            pages() {
+                let pagesArray = [];
+                var form = this.current_page - this.offset;
+                if (form < 1) {
+                    form = 1
+                }
+                var to = form + (this.offset * 2);
+                if (to >= this.last_page) {
+                    to = this.last_page;
+                }
+                while (form <= to) {
+                    pagesArray.push(form);
+                    form++;
+                }
+                return pagesArray;
+            },
+            hasPermissions() {
+                this.permissions = window.localStorage.getItem('permissions');
+                for (let i = 0; i < this.permissions.length; i++) {
+                    if (this.permissions[i] === 22)
+                        return true;
+                    return false;
+                }
+            }
         },
         methods: {
             closeModal() {

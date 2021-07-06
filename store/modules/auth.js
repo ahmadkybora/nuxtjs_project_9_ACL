@@ -1,26 +1,6 @@
 import Axios from 'axios'
 import Swal from "sweetalert2";
 
-/*Axios.defaults.baseURL = 'http://localhost:3001/api/';
-const employeeToken = window.localStorage.getItem('token-employee');
-const userToken = window.localStorage.getItem('user-token');
-
-if (employeeToken !== null && employeeToken !== undefined) {
-    this.$axios.setHeader('Authorization', `Bearer ${employeeToken}`);
-    this.$axios.setHeader('Accept', 'Application/json');
-    Axios.defaults.headers.common.Authorization = `Bearer ${employeeToken}`;
-    Axios.defaults.headers.common.Accept = 'Application/json';
-    Axios.defaults.headers.common['X-Requested-With'] = 'XmlHttpRequest';
-}
-
-if (userToken !== null && userToken !== undefined) {
-    this.$axios.setHeader('Authorization', `Bearer ${userToken}`);
-    this.$axios.setHeader('Accept', 'Application/json');
-    Axios.defaults.headers.common.Authorization = `Bearer ${userToken}`;
-    Axios.defaults.headers.common.Accept = 'Application/json';
-    Axios.defaults.headers.common['X-Requested-With'] = 'XmlHttpRequest';
-}*/
-
 const state = () => ({
     tokenEmployee: window.localStorage.getItem('token-employee'),
     tokenUser: window.localStorage.getItem('token-user'),
@@ -29,6 +9,9 @@ const state = () => ({
     full_name: window.localStorage.getItem('full_name'),
     is_employee: window.localStorage.getItem('is-employee'),
     isEmployee: window.localStorage.getItem('is-admin'),
+    roles: window.localStorage.getItem('is-admin'),
+    permissions: window.localStorage.getItem('permissions'),
+    myPermissions: {},
     isEmployeeLogin: {
         first_name: '',
         last_name: '',
@@ -41,17 +24,13 @@ const state = () => ({
         username: '',
     },
     isUserRegister: {},
-    /*auth: {
-        loggedIn: '',
-        user: {
-            first_name: '',
-            last_name: '',
-            username: ''
-        },
-    }*/
 });
 
 const getters = {
+    myPermissions(state) {
+        //console.log(state.myPermissions);
+        return state.myPermissions
+    },
     isAuthenticated(state) {
         return state.auth.loggedIn
     },
@@ -108,14 +87,24 @@ const actions = {
             const is_admin = auth.data.data.isAdmin;
             const roles = auth.data.data.roles;
             const permissions = auth.data.data.permissions;
+            let myPermissions = [];
+            for (let i = 0; i < permissions.length; i++) {
+                myPermissions[i] = permissions[i].Permission.name;
+            }
+            console.log(myPermissions);
+            window.localStorage.setItem('permissions', myPermissions);
+            context.commit('myPermissions', myPermissions);
 
             window.localStorage.setItem('username', username);
             window.localStorage.setItem('full_name', full_name);
             window.localStorage.setItem('is-admin', is_admin);
             window.localStorage.setItem('roles', roles);
+            //alert(permissions);
+            /*let myPermissions = [];
             for (let i = 0; i < permissions.length; i++) {
-                window.localStorage.setItem(`permissions[${i}]`, permissions[i].permissionId);
+                myPermissions = permissions[i].permissionId;
             }
+            context.commit('myPermissions', myPermissions);*/
 
             await this.$auth.setUser(username);
             await this.$auth.setUserToken(token);
@@ -167,10 +156,17 @@ const actions = {
         window.localStorage.removeItem('full_name');
         window.localStorage.removeItem('username');
         window.localStorage.removeItem('is-admin');
+        window.localStorage.removeItem('roles');
+        /*for (let i = 0; i < permissions.length; i++) {
+            window.localStorage.setItem(`permissions[${i}]`, permissions[i].permissionId);
+        }*/
+        window.localStorage.removeItem('permissions');
 
         delete window.localStorage.getItem('full_name');
         delete window.localStorage.getItem('username');
         delete window.localStorage.getItem('is-admin');
+        delete window.localStorage.getItem('roles');
+        delete window.localStorage.getItem('permissions');
 
         await this.$auth.logout();
 
@@ -394,6 +390,11 @@ const mutations = {
         state.auth.user = payload.user;
         console.log(state.auth.user)
     },*/
+    myPermissions(state, payload) {
+        console.log(payload.myPermissions);
+        state.myPermissions = payload.myPermissions;
+        //console.log(state.myPermissions);
+    },
     accessToken(state, payload) {
         state.token = payload.token
     },

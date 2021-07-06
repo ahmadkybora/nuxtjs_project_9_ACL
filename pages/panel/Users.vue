@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <!--UserRegister-->
-        <UserRegister :user="user" :editMode="editMode"></UserRegister>
+        <UserRegister v-if="hasPermissionCreateUser === createUser" :user="user" :editMode="editMode"></UserRegister>
         <!--//-->
         <div class="row">
             <!--//-->
@@ -10,7 +10,7 @@
                     <div class="col-md-4">
                         <h3>User Register</h3>
                     </div>
-                    <div class="col-md-3 offset-5">
+                    <div v-if="hasPermissionCreateUser === createUser" class="col-md-3 offset-5">
                         <button @click="registerUser()" class="btn btn-success">
                             <span><i class="fa fa-user-plus"></i>Register</span>
                         </button>
@@ -143,6 +143,8 @@
         components: {UserRegister, UserShow},
         data() {
             return {
+                createUser: "create-user",
+                permissions: {},
                 full_text_search: '',
                 page: 1,
                 getUsers: {},
@@ -160,7 +162,10 @@
             }
         },
         mounted() {
-            return this.$store.dispatch('Users/getUsers');
+            return this.$store.dispatch('Users/getUsers')
+                .then(() => {
+                    this.$store.dispatch('Auth/isEmployeeLogin')
+                });
         },
         computed: {
             ...mapState({
@@ -191,6 +196,30 @@
                 }
                 return pagesArray;
             },
+            hasPermissionCreateUser() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.createUser).toString();
+                /*console.log(permissions);
+                console.log(typeof permissions);
+                console.log(typeof this.createUser);*/
+                /*console.log(permissions);
+                for (let permission in permissions) {
+                    console.log(permission.value);
+                    /!*console.log(this.createUser);
+                    if (permissions[i] === this.createUser) {
+                        return permissions[i];
+                    } else {
+                        return 0;
+                    }*!/
+                }*/
+                /*permissions.forEach((x) => {
+                    if (x === "26") {
+                        return x;
+                    } else {
+                        return 0;
+                    }
+                })*/
+            }
         },
         methods: {
             changePage(page) {
