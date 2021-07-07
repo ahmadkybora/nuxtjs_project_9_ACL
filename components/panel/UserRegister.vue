@@ -720,7 +720,10 @@
 
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        <input type="file" @change="onFileSelected" name="image" id="image"
+                                        <input type="file"
+                                               @change="onFileSelected"
+                                               name="image"
+                                               id="image"
                                                class="form-control">
                                     </div>
                                     <div v-if="isSelected !== false">

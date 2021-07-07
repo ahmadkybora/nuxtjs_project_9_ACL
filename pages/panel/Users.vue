@@ -50,7 +50,9 @@
                 </tr>
                 </thead>
                 <tbody class="text-center">
-                <tr v-for="(user, index) in users" :key="user.id">
+                <tr v-if="hasPermissionAllUser === allUser"
+                    v-for="(user, index) in users"
+                    :key="user.id">
                     <td>{{ index }}</td>
                     <td>{{ user.first_name + ' ' + user.last_name }}</td>
                     <td v-text="user.username"></td>
@@ -74,14 +76,24 @@
                     </td>
                     <td>{{ user.createdAt + ' ' + user.updatedAt }}</td>
                     <td>
-                        <a @click="userShow(user)" data-toggle="modal" data-target="#exampleModal">
+                        <a v-if="hasPermissionViewUser === viewUser"
+                           @click="userShow(user)"
+                           data-toggle="modal"
+                           data-target="#exampleModal">
                             <i class="fas fa-eye text-primary"></i>
                         </a>
-                        <UserShow :showUser="showUser"></UserShow>
+                        <UserShow v-if="hasPermissionViewUser ===viewUser"
+                                  :showUser="showUser">
+                        </UserShow>
                         /
-                        <a href="#register" @click="userEdit(user)"><i class="fas fa-pen text-success"></i></a>
+                        <a v-if="hasPermissionUpdateUser === updateUser"
+                           href="#register" @click="userEdit(user)"><i class="fas fa-pen text-success"></i>
+                        </a>
                         /
-                        <a @click="userDelete(user.id)"><i class="fas fa-trash text-danger"></i></a>
+                        <a v-if="hasPermissionDestroyUser === destroyUser"
+                           @click="userDelete(user.id)">
+                            <i class="fas fa-trash text-danger"></i>
+                        </a>
                     </td>
                 </tr>
                 </tbody>
@@ -143,7 +155,11 @@
         components: {UserRegister, UserShow},
         data() {
             return {
-                createUser: "create-user",
+                allUser: 'all-user',
+                viewUser: 'view-user',
+                createUser: 'create-user',
+                updateUser: 'update-user',
+                destroyUser: 'destroy-user',
                 permissions: {},
                 full_text_search: '',
                 page: 1,
@@ -162,6 +178,7 @@
             }
         },
         mounted() {
+            console.log(this.hasPermissionAllUser);
             return this.$store.dispatch('Users/getUsers')
                 .then(() => {
                     this.$store.dispatch('Auth/isEmployeeLogin')
@@ -196,30 +213,46 @@
                 }
                 return pagesArray;
             },
+            hasPermissionAllUser() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.allUser).toString();
+            },
+            hasPermissionViewUser() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.viewUser).toString();
+            },
             hasPermissionCreateUser() {
                 let permissions = window.localStorage.getItem('permissions').split(",");
                 return permissions.filter(x => x === this.createUser).toString();
-                /*console.log(permissions);
-                console.log(typeof permissions);
-                console.log(typeof this.createUser);*/
-                /*console.log(permissions);
-                for (let permission in permissions) {
-                    console.log(permission.value);
-                    /!*console.log(this.createUser);
-                    if (permissions[i] === this.createUser) {
-                        return permissions[i];
-                    } else {
-                        return 0;
-                    }*!/
-                }*/
-                /*permissions.forEach((x) => {
-                    if (x === "26") {
-                        return x;
-                    } else {
-                        return 0;
-                    }
-                })*/
-            }
+            },
+            hasPermissionUpdateUser() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.updateUser).toString();
+            },
+            hasPermissionDestroyUser() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.destroyUser).toString();
+            },
+            /*console.log(permissions);
+            console.log(typeof permissions);
+            console.log(typeof this.createUser);*/
+            /*console.log(permissions);
+            for (let permission in permissions) {
+                console.log(permission.value);
+                /!*console.log(this.createUser);
+                if (permissions[i] === this.createUser) {
+                    return permissions[i];
+                } else {
+                    return 0;
+                }*!/
+            }*/
+            /*permissions.forEach((x) => {
+                if (x === "26") {
+                    return x;
+                } else {
+                    return 0;
+                }
+            })*/
         },
         methods: {
             changePage(page) {

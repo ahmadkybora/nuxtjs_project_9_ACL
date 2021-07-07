@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <!--ProductRegister-->
-        <ProductRegister :product="product" :editMode="editMode"></ProductRegister>
+        <ProductRegister v-if="hasPermissionCreateProduct === createProduct" :product="product" :editMode="editMode"></ProductRegister>
         <!--//-->
         <div class="row">
             <div class="col-md-12 text-center">
@@ -9,7 +9,7 @@
                     <div class="col-md-4">
                         <h3>Product Register</h3>
                     </div>
-                    <div class="col-md-3 offset-5">
+                    <div v-if="hasPermissionCreateProduct === createProduct" class="col-md-3 offset-5">
                         <button @click="registerProduct()" class="btn btn-success">
                             <span><i class="fa fa-user-plus"></i>Register</span>
                         </button>
@@ -53,7 +53,7 @@
                 </tr>
                 </thead>
                 <tbody class="text-center">
-                <tr v-for="(product, index) in products" :key="product.id">
+                <tr v-if="hasPermissionAllProduct === allProduct" v-for="(product, index) in products" :key="product.id">
                     <td>{{ index }}</td>
                     <!--<td v-text="product.ProductCategory.name.substring(0, 10)"></td>
                     <td v-text="product.name.substring(0, 10)"></td>
@@ -86,15 +86,25 @@
                     </td>
                     <td>{{ product.createdAt + ' ' + product.updatedAt }}</td>
                     <td>
-                        <a @click="productShow(product)" data-toggle="modal" data-target="#exampleModal">
+                        <a v-if="hasPermissionViewProduct === viewProduct"
+                           @click="productShow(product)"
+                           data-toggle="modal"
+                           data-target="#exampleModal">
                             <i class="fas fa-eye text-primary"></i>
                         </a>
 
-                        <ProductShow :showProduct="showProduct"></ProductShow>
+                        <ProductShow v-if="hasPermissionViewProduct === viewProduct"
+                                     :showProduct="showProduct">
+                        </ProductShow>
                         /
-                        <a href="#register" @click="productEdit(product)"><i class="fas fa-pen text-success"></i></a>
+                        <a v-if="hasPermissionUpdateProduct === updateProduct"
+                           href="#register"
+                           @click="productEdit(product)"><i class="fas fa-pen text-success"></i>
+                        </a>
                         /
-                        <a @click="productDelete(product.id)"><i class="fas fa-trash text-danger"></i></a>
+                        <a v-if="hasPermissionDestroyProduct === destroyProduct"
+                           @click="productDelete(product.id)"><i class="fas fa-trash text-danger"></i>
+                        </a>
                     </td>
                 </tr>
                 </tbody>
@@ -156,12 +166,17 @@
 
     window.$ = $;
     export default {
-        middleware: 'checkAuthEmployee',
+        //middleware: 'checkAuthEmployee',
         layout: 'panel',
-        name: "Index",
+        name: "Products",
         components: {ProductRegister, ProductShow, ProductSearch},
         data() {
             return {
+                allProduct: 'all-product',
+                viewProduct: 'view-product',
+                createProduct: 'create-product',
+                updateProduct: 'update-product',
+                destroyProduct: 'destroy-product',
                 full_text_search: '',
                 page: 10,
                 offset: 4,
@@ -205,6 +220,26 @@
                     form++;
                 }
                 return pagesArray;
+            },
+            hasPermissionAllProduct() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.allProduct).toString();
+            },
+            hasPermissionViewProduct() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.viewProduct).toString();
+            },
+            hasPermissionCreateProduct() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.createProduct).toString();
+            },
+            hasPermissionUpdateProduct() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.updateProduct).toString();
+            },
+            hasPermissionDestroyProduct() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.destroyProduct).toString();
             },
         },
         methods: {

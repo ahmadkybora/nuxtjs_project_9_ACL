@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <!--UserRegister-->
-        <ArticleCategoryRegister v-if="hasPermissions"></ArticleCategoryRegister>
+        <ArticleCategoryRegister v-if="hasPermissionCreateArticleCategory === createArticleCategory"></ArticleCategoryRegister>
         <!--//-->
         <div class="row">
             <div class="col-md-12 text-center">
@@ -9,7 +9,7 @@
                     <div class="col-md-4">
                         <h3>Product Register</h3>
                     </div>
-                    <div class="col-md-3 offset-5">
+                    <div v-if="hasPermissionCreateArticleCategory === createArticleCategory" class="col-md-3 offset-5">
                         <button @click="registerCategory()" class="btn btn-success">
                             <span><i class="fa fa-user-plus"></i>Register</span>
                         </button>
@@ -49,7 +49,8 @@
                 </tr>
                 </thead>
                 <tbody class="text-center">
-                <tr v-for="(category, index) in categories" :key="category.id">
+                <tr v-if="hasPermissionAllArticleCategory === allArticleCategory"
+                    v-for="(category, index) in categories" :key="category.id">
                     <td>{{ index }}</td>
                     <!--<td v-text="category.Employee.username.substring(0, 5)"></td>
                     <td v-text="category.name.substring(0, 5)"></td>
@@ -76,16 +77,26 @@
                     </td>
                     <td>{{ category.createdAt + ' ' + category.updatedAt }}</td>
                     <td>
-                        <a @click="categoryShow(category)" data-toggle="modal" data-target="#exampleModal">
+                        <a v-if="hasPermissionViewArticleCategory === viewArticleCategory"
+                           @click="categoryShow(category)"
+                           data-toggle="modal"
+                           data-target="#exampleModal">
                             <i class="fas fa-eye text-primary"></i>
                         </a>
 
-                        <ArticleCategoryShow :showCategory="showCategory"></ArticleCategoryShow>
+                        <ArticleCategoryShow
+                                v-if="hasPermissionViewArticleCategory === viewArticleCategory"
+                                             :showCategory="showCategory">
+                        </ArticleCategoryShow>
                         /
-                        <a href="#register" @click="categoryEdit(category.id)"><i
-                                class="fas fa-pen text-success"></i></a>
+                        <a v-if="hasPermissionUpdateArticleCategory === updateArticleCategory"
+                           href="#register"
+                           @click="categoryEdit(category.id)">
+                            <i class="fas fa-pen text-success"></i>
+                        </a>
                         /
-                        <a @click="categoryDelete(category.id)"><i class="fas fa-trash text-danger"></i></a>
+                        <a v-if="hasPermissionDestroyArticleCategory === destroyArticleCategory"
+                           @click="categoryDelete(category.id)"><i class="fas fa-trash text-danger"></i></a>
                     </td>
                 </tr>
                 </tbody>
@@ -148,6 +159,11 @@
         components: {ArticleCategoryRegister, ArticleCategoryShow},
         data() {
             return {
+                allArticleCategory: 'all-article-category',
+                viewArticleCategory: 'view-article-category',
+                createArticleCategory: 'create-article-category',
+                updateArticleCategory: 'update-article-category',
+                destroyArticleCategory: 'destroy-article-category',
                 permissions: '',
                 full_text_search: '',
                 page: 1,
@@ -195,14 +211,26 @@
                 }
                 return pagesArray;
             },
-            hasPermissions() {
-                this.permissions = window.localStorage.getItem('permissions');
-                for (let i = 0; i < this.permissions.length; i++) {
-                    if (this.permissions[i] === 22)
-                        return true;
-                    return false;
-                }
-            }
+            hasPermissionAllArticleCategory() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.allArticleCategory).toString();
+            },
+            hasPermissionViewArticleCategory() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.viewArticleCategory).toString();
+            },
+            hasPermissionCreateArticleCategory() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.createArticleCategory).toString();
+            },
+            hasPermissionUpdateArticleCategory() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.updateArticleCategory).toString();
+            },
+            hasPermissionDestroyArticleCategory() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.destroyArticleCategory).toString();
+            },
         },
         methods: {
             closeModal() {

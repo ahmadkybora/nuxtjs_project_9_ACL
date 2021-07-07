@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <!--ProductRegister-->
-        <ProductCategoryRegister :category="category" :editMode="editMode"></ProductCategoryRegister>
+        <ProductCategoryRegister v-if="hasPermissionCreateProductCategory === createProductCategory" :category="category" :editMode="editMode"></ProductCategoryRegister>
         <!--//-->
         <div class="row">
             <!--//-->
@@ -10,7 +10,7 @@
                     <div class="col-md-4">
                         <h3>Product Categories Register</h3>
                     </div>
-                    <div class="col-md-3 offset-5">
+                    <div v-if="hasPermissionCreateProductCategory === createProductCategory" class="col-md-3 offset-5">
                         <button @click="registerCategory()" class="btn btn-success">
                             <span><i class="fa fa-user-plus"></i>Register</span>
                         </button>
@@ -51,7 +51,9 @@
                 </tr>
                 </thead>
                 <tbody class="text-center">
-                <tr v-for="(category, index) in categories.data" :key="category.id">
+                <tr v-if="hasPermissionAllProductCategory === allProductCategory"
+                    v-for="(category, index) in categories.data"
+                    :key="category.id">
                     <td>{{ index }}</td>
                     <td v-text="category.Brand.name"></td>
                     <td v-text="category.Employee.username"></td>
@@ -78,15 +80,25 @@
                     </td>
                     <td>{{ category.createdAt + ' ' + category.updatedAt }}</td>
                     <td>
-                        <a @click="categoryShow(category)" data-toggle="modal" data-target="#exampleModal">
+                        <a v-if="hasPermissionViewProductCategory === viewProductCategory"
+                           @click="categoryShow(category)"
+                           data-toggle="modal"
+                           data-target="#exampleModal">
                             <i class="fas fa-eye text-primary"></i>
                         </a>
 
-                        <ProductCategoryShow :showCategory="showCategory"></ProductCategoryShow>
+                        <ProductCategoryShow v-if="hasPermissionViewProductCategory === viewProductCategory"
+                                             :showCategory="showCategory">
+                        </ProductCategoryShow>
                         /
-                        <a href="#register" @click="categoryEdit(category)"><i class="fas fa-pen text-success"></i></a>
+                        <a v-if="hasPermissionUpdateProductCategory === updateProductCategory"
+                           href="#register"
+                           @click="categoryEdit(category)"><i class="fas fa-pen text-success"></i>
+                        </a>
                         /
-                        <a @click="categoryDelete(category.id)"><i class="fas fa-trash text-danger"></i></a>
+                        <a v-if="hasPermissionDestroyProductCategory === destroyProductCategory"
+                           @click="categoryDelete(category.id)"><i class="fas fa-trash text-danger"></i>
+                        </a>
                     </td>
                 </tr>
                 </tbody>
@@ -145,10 +157,15 @@
     export default {
         //middleware: 'checkAuthEmployee',
         layout: 'panel',
-        name: "Index",
+        name: "ProductCategories",
         components: {ProductCategoryRegister, ProductCategoryShow},
         data() {
             return {
+                allProductCategory: 'all-product-category',
+                viewProductCategory: 'view-product-category',
+                createProductCategory: 'create-product-category',
+                updateProductCategory: 'update-product-category',
+                destroyProductCategory: 'destroy-product-category',
                 full_text_search: '',
                 page: 1,
                 employee: {},
@@ -193,6 +210,26 @@
                     form++;
                 }
                 return pagesArray;
+            },
+            hasPermissionAllProductCategory() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.allProductCategory).toString();
+            },
+            hasPermissionViewProductCategory() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.viewProductCategory).toString();
+            },
+            hasPermissionCreateProductCategory() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.createProductCategory).toString();
+            },
+            hasPermissionUpdateProductCategory() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.updateProductCategory).toString();
+            },
+            hasPermissionDestroyProductCategory() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.destroyProductCategory).toString();
             },
         },
         methods: {

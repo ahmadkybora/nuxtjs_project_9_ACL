@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <!--UserRegister-->
-        <EmployeeRegister :employee="employee" :editMode="editMode"></EmployeeRegister>
+        <EmployeeRegister v-if="hasPermissionCreateOrder === createOrder" :employee="employee" :editMode="editMode"></EmployeeRegister>
         <!--//-->
         <div class="row">
             <div class="col-md-12 text-center">
@@ -9,7 +9,7 @@
                     <div class="col-md-4">
                         <h3>Employee Register</h3>
                     </div>
-                    <div class="col-md-3 offset-5">
+                    <div v-if="hasPermissionCreateOrder === createOrder" class="col-md-3 offset-5">
                         <button @click="registerEmployee()" class="btn btn-success">
                             <span><i class="fa fa-user-plus"></i>Register</span>
                         </button>
@@ -83,7 +83,9 @@
                 </tr>
                 </thead>
                 <tbody class="text-center">
-                <tr v-for="(employee, index) in employees" :key="employee.id">
+                <tr v-if="hasPermissionAllOrder === allOrder"
+                    v-for="(employee, index) in employees"
+                    :key="employee.id">
                     <td>{{ index }}</td>
                     <td>{{ employee.first_name + ' ' + employee.last_name }}</td>
                     <td v-text="employee.username"></td>
@@ -109,14 +111,23 @@
                     </td>
                     <td>{{ employee.created_at + ' ' + employee.updated_at }}</td>
                     <td>
-                        <a @click="employeeShow(employee)" data-toggle="modal" data-target="#exampleModal">
+                        <a v-if="hasPermissionViewOrder === viewOrder"
+                           @click="employeeShow(employee)"
+                           data-toggle="modal"
+                           data-target="#exampleModal">
                             <i class="fas fa-eye text-primary"></i>
                         </a>
-                        <EmployeeShow :showEmployee="showEmployee"></EmployeeShow>
+                        <EmployeeShow v-if="hasPermissionViewOrder === viewOrder"
+                                      :showEmployee="showEmployee">
+                        </EmployeeShow>
                         /
-                        <a href="#register" @click="employeeEdit(employee)"><i class="fas fa-pen text-success"></i></a>
+                        <a v-if="hasPermissionUpdateOrder === updateOrder"
+                           href="#register" @click="employeeEdit(employee)"><i class="fas fa-pen text-success"></i>
+                        </a>
                         /
-                        <a @click="employeeDelete(employee.id)"><i class="fas fa-trash text-danger"></i></a>
+                        <a v-if="hasPermissionDestroyOrder === DestroyOrder"
+                           @click="employeeDelete(employee.id)"><i class="fas fa-trash text-danger"></i>
+                        </a>
                     </td>
                 </tr>
                 </tbody>
@@ -149,14 +160,17 @@
 
     window.$ = $;
     export default {
-        middleware: 'checkAuthEmployee',
+        //middleware: 'checkAuthEmployee',
         layout: 'panel',
-        name: "Users",
+        name: "Orders",
         components: {EmployeeRegister, EmployeeShow},
         data() {
             return {
-                token: window.localStorage.getItem('token-employee'),
-                state_search: '',
+                allOrder: 'all-order',
+                viewOrder: 'view-order',
+                createOrder: 'create-order',
+                updateOrder: 'update-order',
+                destroyOrder: 'destroy-order',
                 full_name_search: '',
                 username_search: '',
                 email_search: '',
@@ -194,7 +208,43 @@
                 showUser: state => state.Users.isUser,
                 editUser: state => state.Users.isUser,
                 //deleteUser: state => state.Users.isUser,
-            })
+            }),
+            pages() {
+                let pagesArray = [];
+                var form = this.current_page - this.offset;
+                if (form < 1) {
+                    form = 1
+                }
+                var to = form + (this.offset * 2);
+                if (to >= this.last_page) {
+                    to = this.last_page;
+                }
+                while (form <= to) {
+                    pagesArray.push(form);
+                    form++;
+                }
+                return pagesArray;
+            },
+            hasPermissionAllOrder() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.allOrder).toString();
+            },
+            hasPermissionViewOrder() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.viewOrder).toString();
+            },
+            hasPermissionCreateOrder() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.createOrder).toString();
+            },
+            hasPermissionUpdateOrder() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.updateOrder).toString();
+            },
+            hasPermissionDestroyOrder() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.destroyOrder).toString();
+            },
         },
         methods: {
             closeModal() {

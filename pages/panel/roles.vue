@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <!--UserRegister-->
-        <RoleRegister :role="role" :editMode="editMode"></RoleRegister>
+        <RoleRegister v-if="hasPermissionCreateRole === createRole" :role="role" :editMode="editMode"></RoleRegister>
         <!--//-->
         <div class="row">
             <!--//-->
@@ -10,7 +10,7 @@
                     <div class="col-md-4">
                         <h3>Role Register</h3>
                     </div>
-                    <div class="col-md-3 offset-5">
+                    <div v-if="hasPermissionCreateRole === createRole" class="col-md-3 offset-5">
                         <button @click="registerUser()" class="btn btn-success">
                             <span><i class="fa fa-user-plus"></i>Register</span>
                         </button>
@@ -47,7 +47,7 @@
                     <th>Option</th>
                 </tr>
                 </thead>
-                <tbody class="text-center">
+                <tbody v-if="hasPermissionAllRole === allRole" class="text-center">
                 <tr v-for="(role, index) in roles" :key="role.id">
                     <td>{{ index }}</td>
                     <td v-text="role.name"></td>
@@ -70,14 +70,23 @@
                     </td>
                     <td>{{ role.createdAt + ' ' + role.updatedAt }}</td>
                     <td>
-                        <a @click="userShow(role)" data-toggle="modal" data-target="#exampleModal">
+                        <a v-if="hasPermissionViewRole === viewRole"
+                           @click="userShow(role)"
+                           data-toggle="modal"
+                           data-target="#exampleModal">
                             <i class="fas fa-eye text-primary"></i>
                         </a>
                         <UserShow :showUser="showUser"></UserShow>
                         /
-                        <a href="#register" @click="userEdit(role)"><i class="fas fa-pen text-success"></i></a>
+                        <a v-if="hasPermissionUpdateRole === updateRole"
+                           href="#register"
+                           @click="userEdit(role)">
+                            <i class="fas fa-pen text-success"></i>
+                        </a>
                         /
-                        <a @click="userDelete(role.id)"><i class="fas fa-trash text-danger"></i></a>
+                        <a v-if="hasPermissionDestroyRole === destroyRole"
+                           @click="userDelete(role.id)"><i class="fas fa-trash text-danger"></i>
+                        </a>
                     </td>
                 </tr>
                 </tbody>
@@ -134,10 +143,15 @@
     export default {
         //middleware: 'checkAuthEmployee',
         layout: 'panel',
-        name: "Users",
+        name: "Roles",
         components: {RoleRegister, UserShow},
         data() {
             return {
+                allRole: 'all-role',
+                viewRole: 'view-role',
+                createRole: 'create-role',
+                updateRole: 'update-role',
+                destroyRole: 'destroy-role',
                 full_text_search: '',
                 page: 1,
                 getUsers: {},
@@ -185,6 +199,26 @@
                     form++;
                 }
                 return pagesArray;
+            },
+            hasPermissionAllRole() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.allRole).toString();
+            },
+            hasPermissionViewRole() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.viewRole).toString();
+            },
+            hasPermissionCreateRole() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.createRole).toString();
+            },
+            hasPermissionUpdateRole() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.updateRole).toString();
+            },
+            hasPermissionDestroyRole() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.destroyRole).toString();
             },
         },
         methods: {

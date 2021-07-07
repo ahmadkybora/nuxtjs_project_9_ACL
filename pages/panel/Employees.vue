@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <!--UserRegister-->
-        <EmployeeRegister :employee="employee" :editMode="editMode"></EmployeeRegister>
+        <EmployeeRegister v-if="hasPermissionCreateEmployee === createEmployee" :employee="employee" :editMode="editMode"></EmployeeRegister>
         <!--//-->
         <div class="row">
             <!--//-->
@@ -10,7 +10,7 @@
                     <div class="col-md-4">
                         <h3>Employee Register</h3>
                     </div>
-                    <div class="col-md-3 offset-5">
+                    <div v-if="hasPermissionCreateEmployee === createEmployee" class="col-md-3 offset-5">
                         <button @click="registerEmployee()" class="btn btn-success">
                             <span><i class="fa fa-user-plus"></i>Register</span>
                         </button>
@@ -50,7 +50,9 @@
                 </tr>
                 </thead>
                 <tbody class="text-center">
-                <tr v-for="(employee, index) in employees.data" :key="employee.id">
+                <tr v-if="hasPermissionAllEmployee === allEmployee"
+                    v-for="(employee, index) in employees.data"
+                    :key="employee.id">
                     <td>{{ index }}</td>
                     <td>{{ employee.first_name + ' ' + employee.last_name }}</td>
                     <td v-text="employee.username"></td>
@@ -74,14 +76,24 @@
                     </td>
                     <td>{{ employee.createdAt + ' ' + employee.updatedAt }}</td>
                     <td>
-                        <a @click="employeeShow(employee)" data-toggle="modal" data-target="#exampleModal">
+                        <a v-if="hasPermissionViewEmployee === viewEmployee"
+                           @click="employeeShow(employee)"
+                           data-toggle="modal"
+                           data-target="#exampleModal">
                             <i class="fas fa-eye text-primary"></i>
                         </a>
-                        <EmployeeShow :showEmployee="showEmployee"></EmployeeShow>
+                        <EmployeeShow v-if="hasPermissionViewEmployee === viewEmployee"
+                                      :showEmployee="showEmployee">
+                        </EmployeeShow>
                         /
-                        <a href="#register" @click="employeeEdit(employee)"><i class="fas fa-pen text-success"></i></a>
+                        <a v-if="hasPermissionUpdateEmployee === updateEmployee"
+                           href="#register"
+                           @click="employeeEdit(employee)"><i class="fas fa-pen text-success"></i>
+                        </a>
                         /
-                        <a @click="employeeDelete(employee.id)"><i class="fas fa-trash text-danger"></i></a>
+                        <a v-if="hasPermissionDestroyEmployee === destroyEmployee"
+                           @click="employeeDelete(employee.id)"><i class="fas fa-trash text-danger"></i>
+                        </a>
                     </td>
                 </tr>
                 </tbody>
@@ -142,6 +154,11 @@
         components: {EmployeeRegister, EmployeeShow},
         data() {
             return {
+                allEmployee: 'all-employee',
+                viewEmployee: 'view-employee',
+                createEmployee: 'create-employee',
+                updateEmployee: 'update-employee',
+                destroyEmployee: 'destroy-employee',
                 full_text_search: '',
                 page: 1,
                 offset: 4,
@@ -185,6 +202,26 @@
                     form++;
                 }
                 return pagesArray;
+            },
+            hasPermissionAllEmployee() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.allEmployee).toString();
+            },
+            hasPermissionViewEmployee() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.viewEmployee).toString();
+            },
+            hasPermissionCreateEmployee() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.createEmployee).toString();
+            },
+            hasPermissionUpdateEmployee() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.updateEmployee).toString();
+            },
+            hasPermissionDestroyEmployee() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.destroyEmployee).toString();
             },
         },
         methods: {

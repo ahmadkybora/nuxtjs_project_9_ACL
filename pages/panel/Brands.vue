@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <!--UserRegister-->
-        <BrandRegister/>
+        <BrandRegister v-if="hasPermissionCreateBrand === createBrand"></BrandRegister>
         <!--//-->
         <div class="row">
             <div class="col-md-12 text-center">
@@ -9,7 +9,7 @@
                     <div class="col-md-4">
                         <h3>Brands Register</h3>
                     </div>
-                    <div class="col-md-3 offset-5">
+                    <div v-if="hasPermissionCreateBrand === createBrand" class="col-md-3 offset-5">
                         <button @click="registerBrand()" class="btn btn-success">
                             <span><i class="fa fa-user-plus"></i>Register</span>
                         </button>
@@ -49,7 +49,8 @@
                 </tr>
                 </thead>
                 <tbody class="text-center">
-                <tr v-for="(brand, index) in brands" :key="brand.id">
+                <tr v-if="hasPermissionAllBrand === allBrand"
+                    v-for="(brand, index) in brands" :key="brand.id">
                     <td>{{ index }}</td>
                     <td v-text="brand.name"></td>
                     <td v-text="brand.description"></td>
@@ -73,15 +74,22 @@
                     </td>
                     <td>{{ brand.createdAt + ' ' + brand.updatedAt }}</td>
                     <td>
-                        <a @click="brandShow(brand.id)" data-toggle="modal" data-target="#exampleModal">
+                        <a v-if="hasPermissionViewBrand === viewBrand"
+                           @click="brandShow(brand.id)" data-toggle="modal" data-target="#exampleModal">
                             <i class="fas fa-eye text-primary"></i>
                         </a>
 
-                        <BrandShow :showBrand="showBrand"></BrandShow>
+                        <BrandShow v-if="hasPermissionViewBrand === viewBrand"
+                                   :showBrand="showBrand">
+                        </BrandShow>
                         /
-                        <a href="#register" @click="brandEdit(brand.id)"><i class="fas fa-pen text-success"></i></a>
+                        <a v-if="hasPermissionUpdateBrand === updateBrand"
+                           href="#register" @click="brandEdit(brand.id)"><i class="fas fa-pen text-success"></i>
+                        </a>
                         /
-                        <a @click="brandDelete(brand.id)"><i class="fas fa-trash text-danger"></i></a>
+                        <a v-if="hasPermissionDestroyBrand === destroyBrand"
+                           @click="brandDelete(brand.id)"><i class="fas fa-trash text-danger"></i>
+                        </a>
                     </td>
                 </tr>
                 </tbody>
@@ -140,10 +148,15 @@
         //middleware: 'checkAuthEmployee',
         middleware: 'auth',
         layout: 'panel',
-        name: "Users",
+        name: "Brands",
         components: {BrandRegister, BrandShow},
         data() {
             return {
+                allBrand: 'all-brand',
+                viewBrand: 'view-brand',
+                createBrand: 'create-brand',
+                updateBrand: 'update-brand',
+                destroyBrand: 'destroy-brand',
                 full_text_search: '',
                 page: 1,
                 employee: {},
@@ -189,6 +202,26 @@
                     form++;
                 }
                 return pagesArray;
+            },
+            hasPermissionAllBrand() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.allBrand).toString();
+            },
+            hasPermissionViewBrand() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.viewBrand).toString();
+            },
+            hasPermissionCreateBrand() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.createBrand).toString();
+            },
+            hasPermissionUpdateBrand() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.updateBrand).toString();
+            },
+            hasPermissionDestroyBrand() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.destroyBrand).toString();
             },
         },
         methods: {

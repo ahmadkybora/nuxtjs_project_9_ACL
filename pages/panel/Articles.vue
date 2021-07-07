@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <!--UserRegister-->
-        <ArticleRegister v-if="hasPermissionCreateََArticle === createArticle" :article="article" :editMode="editMode"></ArticleRegister>
+        <ArticleRegister v-if="hasPermissionCreateArticle === createArticle" :article="article" :editMode="editMode"></ArticleRegister>
         <!--//-->
         <div class="row">
             <div class="col-md-12 text-center">
@@ -9,7 +9,7 @@
                     <div class="col-md-4">
                         <h3>Product Register</h3>
                     </div>
-                    <div v-if="hasPermissionCreateََArticle === createArticle" class="col-md-3 offset-5">
+                    <div v-if="hasPermissionCreateArticle === createArticle" class="col-md-3 offset-5">
                         <button @click="registerUser()" class="btn btn-success">
                             <span><i class="fa fa-user-plus"></i>Register</span>
                         </button>
@@ -50,7 +50,8 @@
                 </tr>
                 </thead>
                 <tbody class="text-center">
-                <tr v-for="(article, index) in articles" :key="article.id">
+                <tr v-if="hasPermissionAllArticle === allArticle"
+                    v-for="(article, index) in articles" :key="article.id">
                     <td>{{ index }}</td>
                     <!--          <td v-text="article.Category.name.substring(0, 10)"></td>
                               <td v-text="article.Employee.username.substring(0, 10)"></td>
@@ -79,15 +80,19 @@
                     </td>
                     <td>{{ article.createdAt + ' ' + article.updatedAt }}</td>
                     <td>
-                        <a @click="" data-toggle="modal" data-target="#exampleModal">
+                        <a v-if="hasPermissionViewArticle ===viewArticle"
+                           @click="" data-toggle="modal" data-target="#exampleModal">
                             <i class="fas fa-eye text-primary"></i>
                         </a>
 
-                        <!--<ArticleShow :showArticle="showArticle"></ArticleShow>-->
+                        <!--<ArticleShow v-if="hasPermissionAllArticle === allArticle"
+                        :showArticle="showArticle"></ArticleShow>-->
                         /
-                        <a href="#register" @click=""><i class="fas fa-pen text-success"></i></a>
+                        <a v-if="hasPermissionUpdateArticle === updateArticle"
+                           href="#register" @click=""><i class="fas fa-pen text-success"></i></a>
                         /
-                        <a @click=""><i class="fas fa-trash text-danger"></i></a>
+                        <a v-if="hasPermissionDestroyArticle === destroyArticle"
+                           @click=""><i class="fas fa-trash text-danger"></i></a>
                     </td>
                 </tr>
                 </tbody>
@@ -149,7 +154,11 @@
         components: {ArticleRegister, ArticleShow},
         data() {
             return {
+                allArticle: 'all-article',
+                viewArticle: 'view-article',
                 createArticle: 'create-article',
+                updateArticle: 'update-article',
+                destroyArticle: 'destroy-article',
                 permissions: '',
                 full_text_search: '',
                 page: 1,
@@ -199,10 +208,26 @@
                 }
                 return pagesArray;
             },
-            hasPermissionCreateََArticle() {
+            hasPermissionAllArticle() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.allArticle).toString();
+            },
+            hasPermissionViewArticle() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.viewArticle).toString();
+            },
+            hasPermissionCreateArticle() {
                 let permissions = window.localStorage.getItem('permissions').split(",");
                 return permissions.filter(x => x === this.createArticle).toString();
-            }
+            },
+            hasPermissionUpdateArticle() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.updateArticle).toString();
+            },
+            hasPermissionDestroyArticle() {
+                let permissions = window.localStorage.getItem('permissions').split(",");
+                return permissions.filter(x => x === this.destroyArticle).toString();
+            },
         },
         methods: {
             changePage(page) {

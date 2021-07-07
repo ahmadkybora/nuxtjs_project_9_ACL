@@ -39,7 +39,7 @@ export const error = (err) => {
         case 401:
             Swal.fire('Warning!', err.response.data.message, 'warning')
                 .then(() => {
-                    return this.redirect_uri('/');
+                    return window.location.href = '/';
                 });
             break;
         case 403:
