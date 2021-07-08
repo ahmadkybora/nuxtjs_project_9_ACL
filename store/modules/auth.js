@@ -279,7 +279,7 @@ const actions = {
                 console.log(err);
             });*/
             const auth = await this.$auth.loginWith('local', {data: login});
-            if (auth) {
+                if (auth) {
 
                 const username = auth.data.data.username;
                 const full_name = auth.data.data.first_name + ' ' + auth.data.data.last_name;

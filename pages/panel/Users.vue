@@ -178,7 +178,7 @@
             }
         },
         mounted() {
-            console.log(this.hasPermissionAllUser);
+            console.log(this.hasPermissionCreateUser);
             return this.$store.dispatch('Users/getUsers')
                 .then(() => {
                     this.$store.dispatch('Auth/isEmployeeLogin')
